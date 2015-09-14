@@ -1,1 +1,1318 @@
-Hello World!
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset=utf-8 />
+  <title>Chandannagar Tourist Map</title>
+  <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700' rel='stylesheet'>
+  <script src='https://api.tiles.mapbox.com/mapbox.js/v2.1.4/mapbox.js'></script>
+  <link href='https://api.tiles.mapbox.com/mapbox.js/v2.1.4/mapbox.css' rel='stylesheet' />
+  <style>
+  body {
+    color:#404040;
+    font:400 15px/22px 'Source Sans Pro', 'Helvetica Neue', Sans-serif;
+    margin:0;
+    padding:0;
+    -webkit-font-smoothing:antialiased;
+  }
+  * {
+    -webkit-box-sizing:border-box;
+    -moz-box-sizing:border-box;
+    box-sizing:border-box;
+  }
+  h1 {
+    font-size:22px;
+    margin:0;
+    font-weight:400;
+  }
+  a {
+    color:#404040;
+    text-decoration:none;
+  }
+  a:hover { color:#101010; }
+
+  .sidebar {
+    position:absolute;
+    width:33.3333%;
+    height:100%;
+    top:0;left:0;
+    overflow:hidden;
+    border-right:1px solid rgba(0,0,0,0.25);
+  }
+  .pad2 {
+    padding:20px;
+  }
+  .quiet {
+    color:#888;
+  }
+  .map {
+    position:absolute;
+    left:33.3333%;
+    width:66.6666%;
+    top:0;bottom:0;
+  }
+  .heading {
+    background:#fff;
+    border-bottom:1px solid #eee;
+    height:60px;
+    line-height:60px;
+    padding:0 10px;
+  }
+  .listings {
+    height:100%;
+    overflow:auto;
+    padding-bottom:60px;
+  }
+  .listings .item {
+    display:block;
+    border-bottom:1px solid #eee;
+    padding:10px;
+    text-decoration:none;
+  }
+  .listings .item:last-child { border-bottom:none; }
+  .listings .item .title {
+    display:block;
+    color:#00853e;
+    font-weight:700;
+  }
+  .listings .item .title small { font-weight:400; }
+  .listings .item.active .title,
+  .listings .item .title:hover { color:#8cc63f; }
+  .listings .item.active {
+    background-color:#f8f8f8;
+  }
+
+  ::-webkit-scrollbar {
+    width:3px;
+    height:3px;
+    border-left:0;
+    background:rgba(0,0,0,0.1);
+  }
+  ::-webkit-scrollbar-track {
+    background:none;
+  }
+  ::-webkit-scrollbar-thumb {
+    background:#00853e;
+    border-radius:0;
+  }
+
+  .clearfix { display:block; }
+  .clearfix:after {
+    content:'.';
+    display:block;
+    height:0;
+    clear:both;
+    visibility:hidden;
+  }
+
+  /* Marker tweaks */
+  .leaflet-popup-close-button {
+    display:none;
+  }
+  .leaflet-popup-content {
+    font:400 15px/22px 'Source Sans Pro', 'Helvetica Neue', Sans-serif;
+    padding:0;
+    width:200px;
+  }
+  .leaflet-popup-content-wrapper {
+    padding:0;
+  }
+  .leaflet-popup-content h3 {
+    background:#7ec9b1;
+    color:#fff;
+    margin:0;
+    display:block;
+    padding:10px;
+    border-radius:3px 3px 0 0;
+    font-weight:700;
+    margin-top:-15px;
+  }
+  .leaflet-popup-content div {
+    padding:10px;
+  }
+  .leaflet-container .leaflet-marker-icon { cursor:pointer; }
+  </style>
+</head>
+<body>
+  <div class='sidebar'>
+    <div class='heading'>
+      <h1>Our locations</h1>
+    </div>
+    <div id='listings' class='listings'></div>
+  </div>
+  <div id='map' class='map'> </div>
+  <script>
+  L.mapbox.accessToken = 'pk.eyJ1Ijoib2luaSIsImEiOiJOeGF5QzNZIn0.6OgrVXKq-v2DRpZFU55wDw';
+  var geojson = [
+    {
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "way/367746641",
+      "properties": {
+        "@id": "way/367746641",
+        "amenity": "school",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'school',
+        "name": "St. Joseph's Convent",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+              88.3679332,
+              22.8558653
+            ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/367768763",
+      "properties": {
+        "@id": "way/367768763",
+        "amenity": "place_of_worship",
+        "building": "church",
+        "name": "Sacred Heart Church",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'star',
+        "religion": "christian",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+              88.3679894,
+              22.8575656
+            ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/367790407",
+      "properties": {
+        "@id": "way/367790407",
+        "amenity": "courthouse",
+        "building": "yes",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'star',
+        "name": "Chandannagar Court",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+              88.3698977,
+              22.8599463
+            ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/367790408",
+      "properties": {
+        "@id": "way/367790408",
+        "amenity": "school",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'school',
+        "name": "Kanalal Vidyamandir",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+       "type": "Point",
+        "coordinates": [
+              88.3685271,
+              22.857976
+            ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/367790409",
+      "properties": {
+        "@id": "way/367790409",
+        "amenity": "theatre",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'theatre',
+        "name": "Rabindra Bhavan",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+              88.3696011,
+              22.8585374
+            ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/367790411",
+      "properties": {
+        "@id": "way/367790411",
+        "amenity": "college",
+        "building": "yes",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'college',
+        "name": "Women's Polytechnique College",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+              88.3703618,
+              22.860352
+            ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/367792229",
+      "properties": {
+        "@id": "way/367792229",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'fuel',
+        "amenity": "fuel",
+        "name" : "Barabazar Petrol Pump",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+              88.3669552,
+              22.8611217
+            ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/367792231",
+      "properties": {
+        "@id": "way/367792231",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'fuel',
+        "amenity": "fuel",
+        "name" : "Court More Petrol Pump",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+              88.3674822,
+              22.8623455
+            ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/367792238",
+      "properties": {
+        "@id": "way/367792238",
+        "amenity": "place_of_worship",
+        "building": "yes",
+        "name": "Bagbazar Kali Mandir",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'star',
+        "religion": "hindu",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+              88.3658926,
+              22.8641376
+            ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/367795216",
+      "properties": {
+        "@id": "way/367795216",
+        "amenity": "community_centre",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'star',
+        "name": "Indralok",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+              88.369596,
+              22.8613267
+            ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/367795217",
+      "properties": {
+        "@id": "way/367795217",
+        "amenity": "restaurant",
+        "building": "yes",
+        "cuisine": "indian",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'restaurant',
+        "name": "Red Chillies Restaurant",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+              88.3693277,
+              22.8609121
+            ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/367795218",
+      "properties": {
+        "@id": "way/367795218",
+        "amenity": "restaurant",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'restaurant',
+        "name": "Shalimar",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+              88.3695922,
+              22.8612015
+            ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/367803481",
+      "properties": {
+        "@id": "way/367803481",
+        "amenity": "cinema",
+        "building": "yes",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'cinema',
+        "name": "Sridurga Cinema Hall",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+              88.366331,
+              22.8576137
+            ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/367820200",
+      "properties": {
+        "@id": "way/367820200",
+        "amenity": "bank",
+        "building": "yes",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'bank',
+        "name": "ICICI Bank",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+              88.3678279,
+              22.8633175
+            ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/367825846",
+      "properties": {
+        "@id": "way/367825846",
+        "amenity": "place_of_worship",
+        "name": "Sacred Heart Church",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'star',
+        "religion": "christian",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+              88.3681151,
+              22.8576676
+            ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/367825847",
+      "properties": {
+        "@id": "way/367825847",
+        "amenity": "school",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'school',
+        "name": "St. Thomas' School",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+              88.3685243,
+              22.8575728
+            ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/367827482",
+      "properties": {
+        "@id": "way/367827482",
+        "amenity": "hospital",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'hospital',
+        "name": "Chandannagar Hospital",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+              88.3694336,
+              22.8657493
+            ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/367827483",
+      "properties": {
+        "@id": "way/367827483",
+        "amenity": "school",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'school',
+        "name": "Krishnabhabini Balika Vidyamandir",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+              88.3694336,
+              22.8657493
+            ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/368007042",
+      "properties": {
+        "@id": "way/368007042",
+        "amenity": "place_of_worship",
+        "name": "Vivekananda Mandir",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'star',
+        "religion": "hindu",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+              88.3696992,
+              22.8565097
+            ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/369096188",
+      "properties": {
+        "@id": "way/369096188",
+        "amenity": "library",
+        "building": "yes",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'library',
+        "name": "Chandannagar Library",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+              88.3670179,
+              22.8623766
+            ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/369096189",
+      "properties": {
+        "@id": "way/369096189",
+        "amenity": "post_office",
+        "building": "yes",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'star',
+        "name": "Chandannagar Post Office",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+              88.3700977,
+              22.8608284
+            ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/369096190",
+      "properties": {
+        "@id": "way/369096190",
+        "amenity": "bank",
+        "building": "yes",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'bank',
+        "name": "State Bank Of India",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+              88.3678669,
+              22.8598313
+            ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/369096211",
+      "properties": {
+        "@id": "way/369096211",
+        "amenity": "nursing_home",
+        "building": "yes",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'hospital',
+        "name": "Mothers' Nursing Home",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+              88.3684622,
+              22.8611378
+            ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/369988306",
+      "properties": {
+        "@id": "way/369988306",
+        "amenity": "school",
+        "building": "yes",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'school',
+        "name": "Aurobindo Vidyamandir",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+              88.3699217,
+              22.8592212
+            ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/369988310",
+      "properties": {
+        "@id": "way/369988310",
+        "amenity": "police",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'police',
+        "name": "Chandannagar Police Station",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+              88.370292,
+              22.8589656
+            ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/369988311",
+      "properties": {
+        "@id": "way/369988311",
+        "amenity": "restaurant",
+        "building": "yes",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'restaurant',
+        "name": "Royal Biryani",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+              88.365682,
+              22.8642867
+            ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "node/1672312925",
+      "properties": {
+        "@id": "node/1672312925",
+        "amenity": "ferry_terminal",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'harbor',
+        "name": "Jaggadal Ghaat",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3741122,
+          22.8585292
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "node/1672312929",
+      "properties": {
+        "@id": "node/1672312929",
+        "amenity": "ferry_terminal",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'harbor',
+        "name" : "Chandannagar Ghaat",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3715003,
+          22.8599147
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "node/3716333422",
+      "properties": {
+        "@id": "node/3716333422",
+        "amenity": "theatre",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'theatre',
+        "name": "School Auditorium",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3681,
+          22.855676
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "node/3729176377",
+      "properties": {
+        "@id": "node/3729176377",
+        "amenity": "restaurant",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'restaurant',
+        "name": "Satyam Restaurant",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3674543,
+          22.8628937
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "node/3729176388",
+      "properties": {
+        "@id": "node/3729176388",
+        "amenity": "atm",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'bank',
+        "name": "State Bank of India ATM",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3675576,
+          22.8634031
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/367616575",
+      "properties": {
+        "@id": "way/367616575",
+        "landuse": "industrial",
+        "leisure": "park",
+        "man_made": "wastewater_plant",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'park',
+        "name": "KMDA Park",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+              88.3506962,
+              22.8604617
+            ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/367746534",
+      "properties": {
+        "@id": "way/367746534",
+        "leisure": "playground",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'playground',
+        "name": "St. Mary's Playground",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+              88.3677982,
+              22.8572038
+            ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/367792236",
+      "properties": {
+        "@id": "way/367792236",
+        "leisure": "stadium",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'playground',
+        "name": "Kuthir Maath",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+              88.368896,
+              22.8629876
+            ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/369096191",
+      "properties": {
+        "@id": "way/369096191",
+        "building": "commercial",
+        "name": "Vimal",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'shop',
+        "shop": "clothes",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+              88.3674789,
+              22.8634307
+            ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/369988312",
+      "properties": {
+        "@id": "way/369988312",
+        "building": "yes",
+        "name": "Srihari Bastralaya",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'shop',
+        "shop": "clothes",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+              88.3664306,
+              22.8638085
+            ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "node/3729176106",
+      "properties": {
+        "@id": "node/3729176106",
+        "name": "Annapurna",
+        "opening_hours": "We-Su 09:30-13:00,17:00-22:30; Tu 17:00-22:30",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'shop',
+        "shop": "convenience",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3676479,
+          22.8632961
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "node/3729176107",
+      "properties": {
+        "@id": "node/3729176107",
+        "name": "Arambagh Food Mart",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'shop',
+        "shop": "convenience",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3690656,
+          22.860953
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "node/3729176108",
+      "properties": {
+        "@id": "node/3729176108",
+        "name": "M P Jewellers",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'shop',
+        "shop": "jewelry",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3667749,
+          22.8606657
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "node/3737217047",
+      "properties": {
+        "@id": "node/3737217047",
+        "name": "Aradhana Bastralaya",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'shop',
+        "shop": "clothes",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3663911,
+          22.863813
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "node/3737217048",
+      "properties": {
+        "@id": "node/3737217048",
+        "name": "Eves N Kids",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'shop',
+        "shop": "beauty",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3677702,
+          22.857738
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "node/3737217049",
+      "properties": {
+        "@id": "node/3737217049",
+        "name": "Khadim's",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'shop',
+        "shop": "shoes",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3677889,
+          22.8637419
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "node/3737217050",
+      "properties": {
+        "@id": "node/3737217050",
+        "name": "PC Chandra Jewellers",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'shop',
+        "shop": "jewelry",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3659812,
+          22.8583805
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "node/3737217051",
+      "properties": {
+        "@id": "node/3737217051",
+        "name": "Puja Fashions",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'shop',
+        "shop": "clothes",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3677342,
+          22.8634953
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "node/3737217052",
+      "properties": {
+        "@id": "node/3737217052",
+        "name": "Raymond's",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'shop',
+        "shop": "clothes",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3680996,
+          22.8634363
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "node/3737217053",
+      "properties": {
+        "@id": "node/3737217053",
+        "name": "Sil Sweets",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'shop',
+        "shop": "confectionery",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3664281,
+          22.8592238
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "node/3737217054",
+      "properties": {
+        "@id": "node/3737217054",
+        "name": "Surya Kumar Modak",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'shop',
+        "shop": "confectionery",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3662652,
+          22.8592774
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "node/3737217055",
+      "properties": {
+        "@id": "node/3737217055",
+        "name": "Sweetheart Icecream Parlour",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'shop',
+        "shop": "confectionery",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.366174,
+          22.8589686
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "node/3737217056",
+      "properties": {
+        "@id": "node/3737217056",
+        "name": "Tresses",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'shop',
+        "shop": "beauty",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3686948,
+          22.8588353
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "node/3737217057",
+      "properties": {
+        "@id": "node/3737217057",
+        "name": "Women's Own",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'shop',
+        "shop": "beauty",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3662396,
+          22.8583295
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/367649391",
+      "properties": {
+        "@id": "way/367649391",
+        "building": "yes",
+        "building:levels": "2",
+        "name": "Chandannagar Museum",
+        'marker-color': '#7ec9b1',
+        'marker-size': 'large',
+        'marker-symbol': 'museum',
+        "tourism": "museum",
+        "name_local" : "",
+        "description" : ""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+              88.3694128,
+              22.8567319
+            ]
+      }
+    }
+  ]
+}
+];
+  var map = L.mapbox.map('map', 'oini.f1b63512')
+  .setView([22.8602, 88.3658], 17);
+
+  map.scrollWheelZoom.disable();
+
+  var listings = document.getElementById('listings');
+  var locations = L.mapbox.featureLayer().addTo(map);
+
+  locations.setGeoJSON(geojson);
+
+  function setActive(el) {
+    var siblings = listings.getElementsByTagName('div');
+    for (var i = 0; i < siblings.length; i++) {
+      siblings[i].className = siblings[i].className
+      .replace(/active/, '').replace(/\s\s*$/, '');
+    }
+
+    el.className += ' active';
+  }
+
+  locations.eachLayer(function(locale) {
+
+    // Shorten locale.feature.properties to just `prop` so we're not
+    // writing this long form over and over again.
+    var prop = locale.feature.properties;
+
+    // Each marker on the map.
+    var popup = '<h3>' + prop.name + '</h3><div>' + prop.name_local;
+
+    var listing = listings.appendChild(document.createElement('div'));
+    listing.className = 'item';
+
+    var link = listing.appendChild(document.createElement('a'));
+    link.href = '#';
+    link.className = 'title';
+
+    link.innerHTML = prop.name;
+    if (prop.name_local) {
+      link.innerHTML += '<br /><small class="quiet">' + prop.name_local + '</small>';
+      popup += '<br /><small class="quiet">' + prop.name_local + '</small>';
+    }
+
+    var details = listing.appendChild(document.createElement('div'));
+    details.innerHTML = prop.description;
+
+    link.onclick = function() {
+      setActive(listing);
+
+      // When a menu item is clicked, animate the map to center
+      // its associated locale and open its popup.
+      map.setView(locale.getLatLng(), 17);
+      locale.openPopup();
+      return false;
+    };
+
+    // Marker interaction
+    locale.on('click', function(e) {
+      // 1. center the map on the selected marker.
+      map.panTo(locale.getLatLng());
+
+      // 2. Set active the markers associated listing.
+      setActive(listing);
+    });
+
+    popup += '</div>';
+    locale.bindPopup(popup);
+
+});
+</script>
+</body>
+</html>
